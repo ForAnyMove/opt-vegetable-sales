@@ -1,10 +1,10 @@
 import { CATALOG_LIST } from '../local-data/catalog-list.js';
 
-const itemsByPage = 16;
+const itemsByPage = 4;
 let activePageNumber = 1;
 
 function createCatalogContainer(itemsList) {
-  const catalogContainer = document.getElementById('catalog-container');
+  const catalogContainer = document.getElementById('short-catalog');
 
   // Clear existing content
   catalogContainer.innerHTML = '';
@@ -16,26 +16,6 @@ function createCatalogContainer(itemsList) {
   const columnsContainer = document.createElement('div');
   columnsContainer.className = 'col-lg-12';
   subContainer.appendChild(columnsContainer);
-
-  // * Create the options panel and items count
-  const optionsPanel = document.createElement('div');
-  optionsPanel.className = 'ltn__shop-options';
-  columnsContainer.appendChild(optionsPanel);
-
-  const optionsList = document.createElement('ul');
-  columnsContainer.appendChild(optionsList);
-
-  const itemsCountLi = document.createElement('li');
-  optionsList.appendChild(itemsCountLi);
-
-  const itemsCount = document.createElement('div');
-  itemsCount.className = 'ltn__shop-options-count';
-  itemsCountLi.appendChild(itemsCount);
-
-  const itemsCountText = document.createElement('span');
-  itemsCountText.textContent = `Showing 1–${Math.min(itemsByPage, itemsList.length)} of ${itemsList.length} results`;
-  itemsCount.appendChild(itemsCountText);
-  // * End of options panel and items count
 
   // * Create the pagination
   const paginationContainer = document.createElement('div');
@@ -67,111 +47,9 @@ function createCatalogContainer(itemsList) {
   itemsRow.className = 'row';
   itemsTabContent.appendChild(itemsRow);
 
-  updateCatalogPage(itemsRow, itemsList, 1, itemsByPage, paginationList, itemsCountText); // Create the initial items list
+  updateCatalogPage(itemsRow, itemsList, 1, itemsByPage, paginationList); // Create the initial items list
   columnsContainer.appendChild(paginationContainer);
   // * End of items container
-}
-
-function recreatePaginationTab(itemsListContainer, itemsArray, pageNumber, itemsPerPage, paginationList, itemsCountText) {
-  paginationList.innerHTML = '';
-  const totalPages = Math.ceil(itemsArray.length / itemsByPage);
-
-  const appendPage = (num) => {
-    const pageItem = document.createElement('li');
-    if (num === activePageNumber) pageItem.classList.add('active');
-    const pageLink = document.createElement('a');
-    pageLink.href = '#';
-    pageLink.textContent = num;
-    pageLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      activePageNumber = num;
-      updateCatalogPage(itemsListContainer, itemsArray, activePageNumber, itemsPerPage, paginationList, itemsCountText);
-    });
-    pageItem.appendChild(pageLink);
-    paginationList.appendChild(pageItem);
-  };
-  
-  const appendDots = (isForward) => {
-    const dotsItem = document.createElement('li');
-    const dotsLink = document.createElement('a');
-    dotsLink.href = '#';
-    dotsLink.textContent = '...';
-    dotsLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      updateCatalogPage(itemsListContainer, itemsArray, isForward ? activePageNumber + 2 : activePageNumber - 2, itemsPerPage, paginationList, itemsCountText);
-    });
-    dotsItem.appendChild(dotsLink);
-    paginationList.appendChild(dotsItem);
-  };
-  
-  const prevPageBtn = document.createElement('li');
-  paginationList.appendChild(prevPageBtn);
-
-  const prevPageLink = document.createElement('a');
-  prevPageLink.href = '#';
-  prevPageBtn.appendChild(prevPageLink);
-
-  const prevPageIcon = document.createElement('i');
-  prevPageIcon.className = 'fas fa-angle-double-left';
-  prevPageLink.appendChild(prevPageIcon);
-
-  prevPageLink.addEventListener('click', (event) => {
-    event.preventDefault();
-    if (activePageNumber > 1) {
-      activePageNumber--;
-      updateCatalogPage(itemsListContainer, itemsArray, activePageNumber, itemsPerPage, paginationList, itemsCountText); // Recreate the catalog items list to update the view
-    }
-  });
-
-  if (totalPages <= 5) {
-    for (let i = 1; i <= totalPages; i++) {
-      appendPage(i);
-    }
-  } else {
-    const nearStart = activePageNumber <= 2;
-    const nearEnd = activePageNumber >= totalPages - 1;
-
-    if (nearStart) {
-      appendPage(1);
-      appendPage(2);
-      appendPage(3);
-      appendDots(true);
-      appendPage(totalPages);
-    } else if (nearEnd) {
-      appendPage(1);
-      appendDots(false);
-      appendPage(totalPages - 2);
-      appendPage(totalPages - 1);
-      appendPage(totalPages);
-    } else {
-      appendPage(1);
-      appendDots(false);
-      appendPage(activePageNumber - 1);
-      appendPage(activePageNumber);
-      appendPage(activePageNumber + 1);
-      appendDots(true);
-      appendPage(totalPages);
-    }
-  }
-  
-  const nextPageBtn = document.createElement('li');
-  paginationList.appendChild(nextPageBtn);
-
-  const nextPageLink = document.createElement('a');
-  nextPageLink.href = '#';
-  nextPageBtn.appendChild(nextPageLink);
-
-  const nextPageIcon = document.createElement('i');
-  nextPageIcon.className = 'fas fa-angle-double-right';
-  nextPageLink.appendChild(nextPageIcon);
-  
-  nextPageLink.addEventListener('click', (event) => {
-    event.preventDefault();
-    if (activePageNumber < Math.ceil(itemsArray.length / itemsByPage)) {
-      activePageNumber++;
-      updateCatalogPage(itemsListContainer, itemsArray, activePageNumber, itemsPerPage, paginationList, itemsCountText); // Recreate the catalog items list to update the view
-    }
-  });
 }
 
 function recreateItemsContainer(itemsList, itemsContainer) {
@@ -185,6 +63,7 @@ function recreateItemsContainer(itemsList, itemsContainer) {
     const productItem = document.createElement('div');
     productItem.className = 'ltn__product-item ltn__product-item-3 text-center';
     itemDiv.appendChild(productItem);
+    productItem.style.border = '2px solid #dedede';
 
     const productImage = document.createElement('div');
     productImage.className = 'product-img';
@@ -202,6 +81,7 @@ function recreateItemsContainer(itemsList, itemsContainer) {
     img.style.objectFit = 'cover';
     img.src = item.image.src;
     img.alt = item.image.alt;
+    img.style.zIndex = '0';
     imageLinkMock.appendChild(img);
     
     const productBadge = document.createElement('div');
@@ -269,16 +149,19 @@ function recreateItemsContainer(itemsList, itemsContainer) {
   return itemsContainer;
 }
 
-function updateCatalogPage (itemsListContainer, itemsArray, pageNumber, itemsPerPage, paginationList, itemsCountText) {
+function updateCatalogPage (itemsListContainer, itemsArray, pageNumber, itemsPerPage) {
   const itemsList = itemsArray || [];
   activePageNumber = pageNumber || 1;
 
-  const startIndex = (activePageNumber - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  // Копируем массив, чтобы не изменять исходный
+  const shuffled = itemsList.slice();
+  // Перемешиваем массив с помощью алгоритма Фишера-Йетса
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
 
-  itemsCountText.textContent = `Showing ${startIndex + 1}–${Math.min(endIndex, itemsList.length)} of ${itemsList.length} results`;
-  recreateItemsContainer(itemsList.slice(startIndex, endIndex), itemsListContainer);
-  recreatePaginationTab(itemsListContainer, itemsArray, pageNumber, itemsPerPage, paginationList, itemsCountText);
+  recreateItemsContainer(shuffled.slice(0, itemsByPage), itemsListContainer);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
